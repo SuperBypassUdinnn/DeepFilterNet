@@ -14,7 +14,7 @@ classifiers = [
   "Programming Language :: Python",
 ]
 license = "MIT"
-packages = [{ include = "df" }]
+packages = [{ include = "df" }, { include = "gui", from = ".." }]
 include = [
   { path = "pretrained_models/DeepFilterNet/config.ini" },
   { path = "pretrained_models/DeepFilterNet/checkpoints/*" },
@@ -32,22 +32,26 @@ appdirs = "^1.4"
 requests = "^2.27"
 packaging = ">=23,<25"
 sympy = ">=1.6"
-soundfile = { version = ">=0.10,<0.13", optional = true }
+soundfile = { version = ">=0.10", optional = true }
 icecream = { version = ">=2,<3", optional = true }
 pystoi = { version = ">=0.3,<0.5", optional = true }
 pesq = { version = ">=0.0.3,<0.0.5", optional = true }
 scipy = { version = "^1", optional = true }
 onnxruntime = { version = "^1.15", optional = true }
+PyQt6 = { version = ">=6.4", optional = true }
+psutil = { version = ">=5.9", optional = true }
 
 [tool.poetry.extras]
 train = ["deepfilterdataloader", "icecream"]
 eval = ["pystoi", "pesq", "scipy"]
 soundfile = ["soundfile"]
 dnsmos-local = ["onnxruntime"]
+gui = ["soundfile", "PyQt6", "psutil"]
 
 [tool.poetry.scripts]
 deepFilter = "df.enhance:run"
 deep-filter-py = "df.enhance:run"
+deepfilter-gui = "gui.main:main"
 
 [tool.poetry.dev-dependencies]
 poethepoet = "^0.26"

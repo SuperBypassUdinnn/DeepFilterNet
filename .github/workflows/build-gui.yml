@@ -1,0 +1,104 @@
+name: Build GUI Binaries
+
+on:
+  push:
+    tags:
+      - "v*"          # Trigger on version tags: git tag v1.0.0 && git push --tags
+  workflow_dispatch:  # Allow manual trigger from GitHub Actions UI
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg libglib2.0-0 libgl1
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade pip
+          pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+          pip install deepfilterlib soundfile PyQt6 psutil pyinstaller
+
+      - name: Install GUI package
+        run: pip install -e "DeepFilterNet/[soundfile]"
+
+      - name: Build Linux binary
+        run: |
+          export PYTHONPATH="${GITHUB_WORKSPACE}"
+          pyinstaller deepfilter-gui.spec --noconfirm --clean
+
+      - name: Package
+        run: |
+          tar -czf DeepFilterNet-GUI-linux-x86_64.tar.gz -C dist DeepFilterNet-GUI
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DeepFilterNet-GUI-linux-x86_64
+          path: DeepFilterNet-GUI-linux-x86_64.tar.gz
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python dependencies
+        shell: cmd
+        run: |
+          pip install --upgrade pip
+          pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+          pip install deepfilterlib soundfile PyQt6 psutil pyinstaller
+
+      - name: Build Windows binary
+        shell: cmd
+        run: |
+          set PYTHONPATH=%GITHUB_WORKSPACE%
+          pyinstaller deepfilter-gui.spec --noconfirm --clean
+
+      - name: Package
+        shell: pwsh
+        run: |
+          Compress-Archive -Path dist\DeepFilterNet-GUI -DestinationPath DeepFilterNet-GUI-windows-x64.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DeepFilterNet-GUI-windows-x64
+          path: DeepFilterNet-GUI-windows-x64.zip
+
+  release:
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-22.04
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: DeepFilterNet-GUI-linux-x86_64
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: DeepFilterNet-GUI-windows-x64
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            DeepFilterNet-GUI-linux-x86_64.tar.gz
+            DeepFilterNet-GUI-windows-x64.zip
+          generate_release_notes: true
