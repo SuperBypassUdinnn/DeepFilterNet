@@ -15,6 +15,6 @@ else
 fi
 
 # Add repo root to PYTHONPATH so 'gui' package is importable
-export PYTHONPATH="$REPO_ROOT${PYTHONPATH:+:$PYTHONPATH}"
+export PYTHONPATH="$PROJECT_DIR${PYTHONPATH:+:$PYTHONPATH}"
 
 exec "$PYTHON" -m gui.main "$@"
