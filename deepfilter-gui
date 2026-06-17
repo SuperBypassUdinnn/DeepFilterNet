@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # deepfilter-gui — Launch the DeepFilterNet GUI without manually activating the venv.
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$SCRIPT_DIR"
+SCRIPT_PATH="$(readlink -f "${BASH_SOURCE[0]}")"
+PROJECT_DIR="$(dirname "$SCRIPT_PATH")"
 
-VENV_LOCAL="$REPO_ROOT/.venv/bin/python"
+VENV_LOCAL="$PROJECT_DIR/.venv/bin/python"
 
 if [ -f "$VENV_LOCAL" ]; then
     PYTHON="$VENV_LOCAL"
