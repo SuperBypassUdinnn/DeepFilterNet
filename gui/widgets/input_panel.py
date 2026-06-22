@@ -121,17 +121,27 @@ class InputPanel(QWidget):
     # ------------------------------------------------------------------
 
     def _add_files_dialog(self):
-        paths, _ = QFileDialog.getOpenFileNames(
-            self, "Select Audio Files", "",
-            "Audio Files (*.flac *.wav *.mp3 *.ogg *.opus *.m4a *.aac *.aiff *.aif *.wma);;"
+        dlg = QFileDialog(self, "Select Audio Files")
+        dlg.setFileMode(QFileDialog.FileMode.ExistingFiles)
+        dlg.setNameFilters([
+            "Audio Files (*.flac *.wav *.mp3 *.ogg *.opus *.m4a *.aac *.aiff *.aif *.wma)",
             "All Files (*)",
-        )
-        self._add_paths(paths)
+        ])
+        # Use native OS file dialog (GTK/KDE) — do NOT set DontUseNativeDialog
+        dlg.setOption(QFileDialog.Option.DontUseNativeDialog, False)
+        if dlg.exec():
+            self._add_paths(dlg.selectedFiles())
 
     def _add_folder_dialog(self):
-        folder = QFileDialog.getExistingDirectory(self, "Select Folder")
-        if folder:
-            self._scan_folder(folder)
+        dlg = QFileDialog(self, "Select Folder")
+        dlg.setFileMode(QFileDialog.FileMode.Directory)
+        dlg.setOption(QFileDialog.Option.ShowDirsOnly, True)
+        # Use native OS file dialog (GTK/KDE) — do NOT set DontUseNativeDialog
+        dlg.setOption(QFileDialog.Option.DontUseNativeDialog, False)
+        if dlg.exec():
+            folders = dlg.selectedFiles()
+            if folders:
+                self._scan_folder(folders[0])
 
     def _remove_selected(self):
         selected = {item.data(Qt.ItemDataRole.UserRole) for item in self._list.selectedItems()}

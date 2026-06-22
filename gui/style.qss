@@ -23,7 +23,19 @@ QWidget {
     font-size: 13px;
 }
 
-QMainWindow, QDialog {
+/* Exclude QFileDialog from dark theme so the native KDE/OS dialog is used */
+QFileDialog {
+    background-color: unset;
+    color: unset;
+}
+QFileDialog QWidget {
+    background-color: unset;
+    color: unset;
+    font-family: unset;
+    font-size: unset;
+}
+
+QMainWindow, QDialog:not(QFileDialog) {
     background-color: #1a1a2e;
 }
 

@@ -81,9 +81,16 @@ class OutputPanel(QWidget):
 
     def _browse(self):
         start = self._dir_edit.text() or os.path.expanduser("~")
-        folder = QFileDialog.getExistingDirectory(self, "Select Output Directory", start)
-        if folder:
-            self._dir_edit.setText(folder)
+        dlg = QFileDialog(self, "Select Output Directory")
+        dlg.setStyleSheet("")
+        dlg.setFileMode(QFileDialog.FileMode.Directory)
+        dlg.setOption(QFileDialog.Option.ShowDirsOnly, True)
+        dlg.setDirectory(start)
+        if dlg.exec():
+            folders = dlg.selectedFiles()
+            if folders:
+                self._dir_edit.setText(folders[0])
+
 
     def _emit_changed(self, *_):
         self.output_changed.emit(self.get_output_dir(), self.get_output_format())

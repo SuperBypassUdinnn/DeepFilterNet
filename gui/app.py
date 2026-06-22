@@ -21,6 +21,11 @@ def create_app(argv=None) -> QApplication:
 
     # Enable high-DPI scaling before creating QApplication
     os.environ.setdefault("QT_ENABLE_HIGHDPI_SCALING", "1")
+    # Force native OS file dialogs (GTK on GNOME, KDE on Plasma)
+    # This gives the user the proper themed file picker instead of Qt's built-in one.
+    if not os.environ.get("QT_QPA_PLATFORMTHEME"):
+        # Prefer gtk3 theme for native GTK file dialogs on GNOME/KDE
+        os.environ["QT_QPA_PLATFORMTHEME"] = "gtk3"
 
     app = QApplication(argv)
     app.setApplicationName("DeepFilterNet GUI")
